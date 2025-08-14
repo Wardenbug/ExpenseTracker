@@ -15,10 +15,21 @@ public sealed class CreateExpenseCommandHandler(
     {
         ArgumentNullException.ThrowIfNull(command);
 
+        var category = command.CategoryType switch
+        {
+            CategoryType.Groceries => Category.Groceries,
+            CategoryType.Leisure => Category.Leisure,
+            CategoryType.Electronics => Category.Electronics,
+            CategoryType.Utilities => Category.Utilities,
+            CategoryType.Clothing => Category.Clothing,
+            CategoryType.Health => Category.Health,
+            _ => Category.Others
+        };
+
         var expense = Expense.Create(
             command.UserId,
             command.Name,
-            command.Category,
+            category,
             command.Amount,
             DateTime.UtcNow);
 

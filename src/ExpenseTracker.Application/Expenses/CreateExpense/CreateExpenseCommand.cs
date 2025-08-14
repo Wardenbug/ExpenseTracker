@@ -5,5 +5,5 @@ namespace ExpenseTracker.Application.Expenses.CreateExpense;
 public record CreateExpenseCommand(
     Guid UserId,
     string Name,
-    Category Category,
+    CategoryType CategoryType,
     decimal Amount) : ICommand;

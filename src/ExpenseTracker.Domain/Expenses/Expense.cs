@@ -32,7 +32,7 @@ public sealed class Expense : Entity
     public static Expense Create(
         Guid userId,
         string name,
-        Category category,
+        CategoryType categoryType,
         decimal amount,
         DateTime createdOnUtc)
     {
