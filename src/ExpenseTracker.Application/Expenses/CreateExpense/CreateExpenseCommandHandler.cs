@@ -7,9 +7,9 @@ namespace ExpenseTracker.Application.Expenses.CreateExpense;
 public sealed class CreateExpenseCommandHandler(
         IUnitOfWork unitOfWork,
         IExpenseRepository expenseRepository
-    ) : ICommandHandler<CreateExpenseCommand, int>
+    ) : ICommandHandler<CreateExpenseCommand, Expense>
 {
-    public async Task<int> HandleAsync(
+    public async Task<Expense> HandleAsync(
         CreateExpenseCommand command,
         CancellationToken cancellationToken = default)
     {
@@ -37,6 +37,6 @@ public sealed class CreateExpenseCommandHandler(
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return 1;
+        return expense;
     }
 }

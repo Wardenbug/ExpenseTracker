@@ -34,8 +34,8 @@ public static class ExpensesEndpoints
             request.CategoryType,
             request.Amount);
 
-         await handler.HandleAsync(command, cancellationToken);
+         var expense = await handler.HandleAsync(command, cancellationToken);
 
-        return Results.Ok();
+        return Results.Ok(expense);
     }
 }

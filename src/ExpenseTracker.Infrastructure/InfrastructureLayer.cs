@@ -1,4 +1,5 @@
-﻿using ExpenseTracker.Infrastructure.Data;
+﻿using ExpenseTracker.Domain.Abstractions;
+using ExpenseTracker.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +19,10 @@ public static class InfrastuctureLayer
         {
             options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention();
         });
+
+        services.AddScoped<IUnitOfWork>(serviceProvider =>
+            serviceProvider.GetRequiredService<ApplicationDbContext>());
+
         return services;
     }
 }
