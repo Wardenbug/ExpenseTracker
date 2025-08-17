@@ -2,7 +2,7 @@
 
 namespace ExpenseTracker.Application;
 
-public static class DependencyInjection
+public static class ApplicationLayer
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {

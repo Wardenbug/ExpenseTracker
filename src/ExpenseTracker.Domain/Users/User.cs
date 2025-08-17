@@ -17,8 +17,8 @@ public sealed class User : Entity
 
     }
 
-    public string UserName { get; private set; }
-    public string Email { get; private set; }
+    public string UserName { get; private set; } = string.Empty;
+    public string Email { get; private set; } = string.Empty;
 
     public static User Create(string userName, string email)
     {

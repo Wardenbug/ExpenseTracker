@@ -31,10 +31,10 @@ public static class ExpensesEndpoints
         var command = new CreateExpenseCommand(
             request.UserId,
             request.Name,
-            request.Category,
+            request.CategoryType,
             request.Amount);
 
-        var result = await handler.HandleAsync(command, cancellationToken);
+         await handler.HandleAsync(command, cancellationToken);
 
         return Results.Ok();
     }

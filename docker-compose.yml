@@ -1,0 +1,19 @@
+services:
+  expensetracker.api:
+    image: ${DOCKER_REGISTRY-}expensetrackerapi
+    container_name: ExpenseTracker.Api
+    build:
+      context: .
+      dockerfile: src/ExpenseTracker.Api/Dockerfile
+
+  expensetracker.database:
+    image: postgres:latest
+    container_name: ExpenseTracker.Database
+    environment:
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_USER: postgres
+        POSTGRES_DB: expensetracker
+    volumes:
+      - ./.containers/db:/var/lib/postgresql/data
+    ports:
+      - 5432:5432 

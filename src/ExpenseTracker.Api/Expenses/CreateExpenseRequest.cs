@@ -1,6 +1,8 @@
-﻿namespace ExpenseTracker.Api.Expenses;
+﻿using ExpenseTracker.Domain.Expenses;
+
+namespace ExpenseTracker.Api.Expenses;
 public record CreateExpenseRequest(Guid UserId,
     string Name,
-    CategoryType Category,
+    CategoryType CategoryType,
     decimal Amount);
 

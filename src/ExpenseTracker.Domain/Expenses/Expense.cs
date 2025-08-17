@@ -4,7 +4,8 @@ namespace ExpenseTracker.Domain.Expenses;
 
 public sealed class Expense : Entity
 {
-    private Expense(Guid id,
+    private Expense(
+        Guid id,
         Guid userId,
         string name,
         Category category,
@@ -16,13 +17,14 @@ public sealed class Expense : Entity
         Category = category;
         Amount = amount;
         CreatedOnUtc = createdOnUtc;
+        UpdatedOnUtc = null;
     }
 
     private Expense() { }
 
     public Guid UserId { get; private set; }
-    public string Name { get; private set; }
-    public Category Category { get; private set; }
+    public string Name { get; private set; } = string.Empty;
+    public Category Category { get; private set; } = default!;
     public decimal Amount { get; private set; }
 
     public DateTime CreatedOnUtc { get; private set; }
@@ -32,7 +34,7 @@ public sealed class Expense : Entity
     public static Expense Create(
         Guid userId,
         string name,
-        CategoryType categoryType,
+        Category category,
         decimal amount,
         DateTime createdOnUtc)
     {
