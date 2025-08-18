@@ -2,5 +2,5 @@
 
 public interface IExpenseRepository
 {
-    void AddAsync(Expense expense);
+    Task AddAsync(Expense expense, CancellationToken cancellationToken = default);
 }

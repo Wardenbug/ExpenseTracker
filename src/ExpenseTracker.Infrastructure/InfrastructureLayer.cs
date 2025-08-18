@@ -1,5 +1,7 @@
 ﻿using ExpenseTracker.Domain.Abstractions;
+using ExpenseTracker.Domain.Expenses;
 using ExpenseTracker.Infrastructure.Data;
+using ExpenseTracker.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +24,8 @@ public static class InfrastuctureLayer
 
         services.AddScoped<IUnitOfWork>(serviceProvider =>
             serviceProvider.GetRequiredService<ApplicationDbContext>());
+
+        services.AddScoped<IExpenseRepository, ExpenseRepository>();
 
         return services;
     }

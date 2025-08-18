@@ -33,7 +33,7 @@ public sealed class CreateExpenseCommandHandler(
             command.Amount,
             DateTime.UtcNow);
 
-        expenseRepository.AddAsync(expense);
+        await expenseRepository.AddAsync(expense, cancellationToken);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
