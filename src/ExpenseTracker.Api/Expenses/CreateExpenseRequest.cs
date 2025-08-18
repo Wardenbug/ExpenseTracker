@@ -5,4 +5,3 @@ public record CreateExpenseRequest(Guid UserId,
     string Name,
     CategoryType CategoryType,
     decimal Amount);
-

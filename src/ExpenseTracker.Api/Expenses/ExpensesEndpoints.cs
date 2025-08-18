@@ -1,4 +1,6 @@
-﻿using ExpenseTracker.Application.Expenses.CreateExpense;
+﻿using ExpenseTracker.Application.Abstractions;
+using ExpenseTracker.Application.Expenses.CreateExpense;
+using ExpenseTracker.Domain.Expenses;
 
 namespace ExpenseTracker.Api.Expenses;
 
@@ -25,7 +27,7 @@ public static class ExpensesEndpoints
 
     public static async Task<IResult> CreateExpensesAsync(
         CreateExpenseRequest request,
-        CreateExpenseCommandHandler handler,
+        ICommandHandler<CreateExpenseCommand, Expense> handler,
         CancellationToken cancellationToken)
     {
         var command = new CreateExpenseCommand(
@@ -34,7 +36,7 @@ public static class ExpensesEndpoints
             request.CategoryType,
             request.Amount);
 
-         var expense = await handler.HandleAsync(command, cancellationToken);
+        var expense = await handler.HandleAsync(command, cancellationToken);
 
         return Results.Ok(expense);
     }
