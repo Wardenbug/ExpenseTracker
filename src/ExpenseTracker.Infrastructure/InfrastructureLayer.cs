@@ -2,9 +2,12 @@
 using ExpenseTracker.Domain.Expenses;
 using ExpenseTracker.Infrastructure.Data;
 using ExpenseTracker.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore; // Add this using directive
 
 namespace ExpenseTracker.Infrastructure;
 
@@ -19,8 +22,30 @@ public static class InfrastuctureLayer
 
         services.AddDbContext<ApplicationDbContext>(options =>
         {
-            options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention();
+            options
+            .UseNpgsql(
+                connectionString,
+                options => options
+                    .MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemes.Expenses)
+                )
+            .UseSnakeCaseNamingConvention();
         });
+
+
+        services.AddDbContext<ApplicationIdentityDbContext>(options =>
+        {
+            options
+            .UseNpgsql(
+                connectionString,
+                options => options
+                    .MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemes.Identity)
+                )
+            .UseSnakeCaseNamingConvention();
+        });
+
+        services.AddIdentityCore<IdentityUser>()
+            .AddRoles<IdentityRole>()
+            .AddEntityFrameworkStores<ApplicationIdentityDbContext>();
 
         services.AddScoped<IUnitOfWork>(serviceProvider =>
             serviceProvider.GetRequiredService<ApplicationDbContext>());

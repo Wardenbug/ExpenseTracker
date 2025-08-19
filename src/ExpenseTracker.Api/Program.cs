@@ -18,10 +18,11 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 
     using var scope = app.Services.CreateScope();
-    using var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    using var appDbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    using var identityDbContext = scope.ServiceProvider.GetRequiredService<ApplicationIdentityDbContext>();
 
-    dbContext.Database.Migrate();
-
+    appDbContext.Database.Migrate();
+    identityDbContext.Database.Migrate();
 }
 
 app.UseHttpsRedirection();
