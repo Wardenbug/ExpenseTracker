@@ -4,6 +4,7 @@ using ExpenseTracker.Application;
 using ExpenseTracker.Infrastructure;
 using ExpenseTracker.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,13 +18,14 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
 
     using var scope = app.Services.CreateScope();
     using var appDbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     using var identityDbContext = scope.ServiceProvider.GetRequiredService<ApplicationIdentityDbContext>();
 
     appDbContext.Database.Migrate();
-    identityDbContext.Database.Migrate(); 
+    identityDbContext.Database.Migrate();
 }
 
 app.UseHttpsRedirection();

@@ -27,6 +27,6 @@ public static class UsersEndpoints
 
         var newUser = await handler.HandleAsync(command, cancellationToken);
 
-        return Results.Ok(newUser);
+        return TypedResults.Ok<User>(newUser);
     }
 }
