@@ -6,10 +6,12 @@ public sealed class User : Entity
 {
     private User(Guid id,
         string userName,
-        string email) : base(id)
+        string email,
+        string identityId) : base(id)
     {
         UserName = userName;
         Email = email;
+        IdentityId = identityId;
     }
 
     private User()
@@ -19,9 +21,10 @@ public sealed class User : Entity
 
     public string UserName { get; private set; } = string.Empty;
     public string Email { get; private set; } = string.Empty;
+    public string IdentityId { get; private set; } = string.Empty;
 
-    public static User Create(string userName, string email)
+    public static User Create(string userName, string email, string identityId)
     {
-        return new User(Guid.NewGuid(), userName, email);
+        return new User(Guid.NewGuid(), userName, email, identityId);
     }
 }

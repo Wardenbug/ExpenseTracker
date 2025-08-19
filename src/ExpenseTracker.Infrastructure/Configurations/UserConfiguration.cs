@@ -16,5 +16,7 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(user => user.Email)
             .IsRequired();
+
+        builder.HasIndex(user => user.IdentityId);
     }
 }

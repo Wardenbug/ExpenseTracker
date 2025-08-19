@@ -7,7 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore; // Add this using directive
+using ExpenseTracker.Domain.Users;
+using ExpenseTracker.Application.Abstractions;
+using ExpenseTracker.Infrastructure.Authentication;
 
 namespace ExpenseTracker.Infrastructure;
 
@@ -51,6 +53,8 @@ public static class InfrastuctureLayer
             serviceProvider.GetRequiredService<ApplicationDbContext>());
 
         services.AddScoped<IExpenseRepository, ExpenseRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IAuthenticationService, AuthenticationService>();
 
         return services;
     }

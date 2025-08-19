@@ -77,6 +77,11 @@ namespace ExpenseTracker.Infrastructure.Data.Migrations.Application
                         .HasColumnType("text")
                         .HasColumnName("email");
 
+                    b.Property<string>("IdentityId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("identity_id");
+
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasColumnType("text")
@@ -84,6 +89,9 @@ namespace ExpenseTracker.Infrastructure.Data.Migrations.Application
 
                     b.HasKey("Id")
                         .HasName("pk_users");
+
+                    b.HasIndex("IdentityId")
+                        .HasDatabaseName("ix_users_identity_id");
 
                     b.ToTable("users", "expenses");
                 });

@@ -1,4 +1,5 @@
 using ExpenseTracker.Api.Expenses;
+using ExpenseTracker.Api.Users;
 using ExpenseTracker.Application;
 using ExpenseTracker.Infrastructure;
 using ExpenseTracker.Infrastructure.Data;
@@ -22,11 +23,12 @@ if (app.Environment.IsDevelopment())
     using var identityDbContext = scope.ServiceProvider.GetRequiredService<ApplicationIdentityDbContext>();
 
     appDbContext.Database.Migrate();
-    identityDbContext.Database.Migrate();
+    identityDbContext.Database.Migrate(); 
 }
 
 app.UseHttpsRedirection();
 
 app.MapExpensesEndpoints();
+app.MapUsersEndpoints();
 
 app.Run();

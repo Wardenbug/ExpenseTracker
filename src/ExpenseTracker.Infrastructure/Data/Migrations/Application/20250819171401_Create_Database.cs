@@ -22,7 +22,8 @@ namespace ExpenseTracker.Infrastructure.Data.Migrations.Application
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     user_name = table.Column<string>(type: "text", nullable: false),
-                    email = table.Column<string>(type: "text", nullable: false)
+                    email = table.Column<string>(type: "text", nullable: false),
+                    identity_id = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -59,6 +60,12 @@ namespace ExpenseTracker.Infrastructure.Data.Migrations.Application
                 schema: "expenses",
                 table: "expenses",
                 column: "user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_users_identity_id",
+                schema: "expenses",
+                table: "users",
+                column: "identity_id");
         }
 
         /// <inheritdoc />
