@@ -1,4 +1,5 @@
 ﻿using ExpenseTracker.Application.Abstractions;
+using ExpenseTracker.Application.Authentication;
 using ExpenseTracker.Domain.Abstractions;
 using ExpenseTracker.Domain.Users;
 
@@ -7,10 +8,11 @@ namespace ExpenseTracker.Application.Users.RegisterUser;
 internal sealed class RegisterUserCommandHandler(
     IUserRepository userRepository,
     IUnitOfWork unitOfWork,
-    IAuthenticationService authenticationService
-    ) : ICommandHandler<RegisterUserCommand, User>
+    IAuthenticationService authenticationService,
+    IJwtService jwtService
+    ) : ICommandHandler<RegisterUserCommand, AccessTokenDto>
 {
-    public async Task<User> HandleAsync(
+    public async Task<AccessTokenDto> HandleAsync(
         RegisterUserCommand command,
         CancellationToken cancellationToken = default)
     {
@@ -27,6 +29,8 @@ internal sealed class RegisterUserCommandHandler(
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return user;
+        var accessToken = jwtService.CreateToken(new TokenRequest(user.IdentityId));
+
+        return accessToken;
     }
 }

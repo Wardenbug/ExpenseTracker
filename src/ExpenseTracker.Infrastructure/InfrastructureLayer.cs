@@ -10,6 +10,10 @@ using Microsoft.Extensions.DependencyInjection;
 using ExpenseTracker.Domain.Users;
 using ExpenseTracker.Application.Abstractions;
 using ExpenseTracker.Infrastructure.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using ExpenseTracker.Application.Authentication;
 
 namespace ExpenseTracker.Infrastructure;
 
@@ -49,12 +53,30 @@ public static class InfrastuctureLayer
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<ApplicationIdentityDbContext>();
 
+        services.Configure<JwtAuthOptions>(configuration.GetSection("Jwt"));
+
+        JwtAuthOptions jwtAuthOptions = configuration.GetSection("Jwt").Get<JwtAuthOptions>()!;
+
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidIssuer = jwtAuthOptions.Issuer,
+                    ValidAudience = jwtAuthOptions.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtAuthOptions.Key))
+                };
+            });
+
+        services.AddAuthorization();
+
         services.AddScoped<IUnitOfWork>(serviceProvider =>
             serviceProvider.GetRequiredService<ApplicationDbContext>());
 
         services.AddScoped<IExpenseRepository, ExpenseRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
+        services.AddTransient<IJwtService, JwtService>();
 
         return services;
     }

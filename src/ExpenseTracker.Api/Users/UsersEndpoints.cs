@@ -1,6 +1,6 @@
 ﻿using ExpenseTracker.Application.Abstractions;
+using ExpenseTracker.Application.Authentication;
 using ExpenseTracker.Application.Users.RegisterUser;
-using ExpenseTracker.Domain.Users;
 
 namespace ExpenseTracker.Api.Users;
 
@@ -15,7 +15,7 @@ public static class UsersEndpoints
 
     public static async Task<IResult> RegisterUser(
         CreateUserRequest request,
-        ICommandHandler<RegisterUserCommand, User> handler,
+        ICommandHandler<RegisterUserCommand, AccessTokenDto> handler,
         CancellationToken cancellationToken)
     {
         var command = new RegisterUserCommand(
@@ -27,6 +27,6 @@ public static class UsersEndpoints
 
         var newUser = await handler.HandleAsync(command, cancellationToken);
 
-        return TypedResults.Ok<User>(newUser);
+        return TypedResults.Ok<AccessTokenDto>(newUser);
     }
 }
