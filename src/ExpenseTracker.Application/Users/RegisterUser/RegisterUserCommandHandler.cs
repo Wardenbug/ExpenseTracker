@@ -2,6 +2,8 @@
 using ExpenseTracker.Application.Authentication;
 using ExpenseTracker.Domain.Abstractions;
 using ExpenseTracker.Domain.Users;
+using FluentValidation;
+using FluentValidation.Results;
 
 namespace ExpenseTracker.Application.Users.RegisterUser;
 
@@ -9,13 +11,28 @@ internal sealed class RegisterUserCommandHandler(
     IUserRepository userRepository,
     IUnitOfWork unitOfWork,
     IAuthenticationService authenticationService,
+    IValidator<RegisterUserCommand> validator,
     IJwtService jwtService
-    ) : ICommandHandler<RegisterUserCommand, AccessTokenDto>
+    ) : ICommandHandler<RegisterUserCommand, Result<AccessTokenDto>>
 {
-    public async Task<AccessTokenDto> HandleAsync(
+    public async Task<Result<AccessTokenDto>> HandleAsync(
         RegisterUserCommand command,
         CancellationToken cancellationToken = default)
     {
+        ValidationResult validationResult = await validator.ValidateAsync(command, cancellationToken);
+
+        if (!validationResult.IsValid)
+        {
+            var errors = validationResult.Errors;
+
+            var applicationErrors = errors.Select(error =>
+            new ApplicationError(
+            $"RegisterUserCommand.ValidationError.{error.ErrorCode}",
+                error.ErrorMessage));
+
+            return Result.Failure(applicationErrors.ToList());
+        }
+
         var result = await authenticationService.RegisterUserAsync(
             command.Email,
             command.UserName,
@@ -31,6 +48,6 @@ internal sealed class RegisterUserCommandHandler(
 
         var accessToken = jwtService.CreateToken(new TokenRequest(user.IdentityId));
 
-        return accessToken;
+        return Result.Ok(accessToken);
     }
 }

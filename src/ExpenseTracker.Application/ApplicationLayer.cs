@@ -1,4 +1,5 @@
 ﻿using ExpenseTracker.Application.Abstractions;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
@@ -11,6 +12,8 @@ public static class ApplicationLayer
     {
 
         AddCommandAndQueryHandlers(services);
+
+        services.AddValidatorsFromAssembly(typeof(ApplicationLayer).Assembly, includeInternalTypes: true);
 
         return services;
     }
