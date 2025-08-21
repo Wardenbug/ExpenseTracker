@@ -1,5 +1,6 @@
 ﻿using ExpenseTracker.Application.Abstractions;
 using ExpenseTracker.Application.Authentication;
+using ExpenseTracker.Application.Users.LoginUser;
 using ExpenseTracker.Application.Users.RegisterUser;
 
 namespace ExpenseTracker.Api.Users;
@@ -9,6 +10,7 @@ public static class UsersEndpoints
     public static IEndpointRouteBuilder MapUsersEndpoints(this IEndpointRouteBuilder routeBuilder)
     {
         routeBuilder.MapPost("users", RegisterUser);
+        routeBuilder.MapPost("users/login", LoginUser);
 
         return routeBuilder;
     }
@@ -27,6 +29,21 @@ public static class UsersEndpoints
 
         var newUser = await handler.HandleAsync(command, cancellationToken);
 
-        return TypedResults.Ok<AccessTokenDto>(newUser);
+        return TypedResults.Ok(newUser);
+    }
+
+    public static async Task<IResult> LoginUser(
+        LoginUserRequest request,
+        ICommandHandler<LoginUserCommand, AccessTokenDto> handler,
+        CancellationToken cancellationToken
+        )
+    {
+        var command = new LoginUserCommand(
+            request.UserName,
+            request.Password);
+
+        var token = await handler.HandleAsync(command, cancellationToken);
+
+        return Results.Ok(token);
     }
 }
