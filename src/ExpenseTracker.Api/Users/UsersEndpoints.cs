@@ -32,7 +32,7 @@ public static class UsersEndpoints
 
         if (newUser.IsFailure)
         {
-            return Results.BadRequest(newUser.Errors);
+            return Results.ValidationProblem(newUser.Errors!.ToValidationErrors());
         }
 
         return TypedResults.Ok(newUser);

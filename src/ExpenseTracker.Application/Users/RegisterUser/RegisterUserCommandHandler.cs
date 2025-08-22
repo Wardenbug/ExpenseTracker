@@ -26,9 +26,9 @@ internal sealed class RegisterUserCommandHandler(
             var errors = validationResult.Errors;
 
             var applicationErrors = errors.Select(error =>
-            new ApplicationError(
-            $"RegisterUserCommand.ValidationError.{error.ErrorCode}",
-                error.ErrorMessage));
+                new ApplicationError(
+                    error.PropertyName,
+                    error.ErrorMessage));
 
             return Result.Failure<AccessTokenDto>(applicationErrors.ToList());
         }
