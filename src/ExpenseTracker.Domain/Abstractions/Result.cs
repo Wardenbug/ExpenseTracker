@@ -19,16 +19,22 @@ public class Result
     public IReadOnlyList<ApplicationError>? Errors { get; }
 
     public static Result Ok() => new(true, ApplicationError.None);
+    public static Result<TValue> Ok<TValue>(TValue value) => new(value, true, ApplicationError.None);
     public static Result Failure(ApplicationError error) => new(false, error);
     public static Result Failure(IReadOnlyList<ApplicationError> errors) => new(false, errors);
+    public static Result<TValue> Failure<TValue>(IReadOnlyList<ApplicationError> errors) => new(false, errors);
 }
 
 public sealed class Result<TValue> : Result
 {
-    public TValue Value { get; }
+    public TValue? Value { get; }
     public Result(TValue value, bool isSuccess, ApplicationError error)
         : base(isSuccess, error)
     {
         Value = value;
+    }
+    public Result(bool isSuccess, IReadOnlyList<ApplicationError> errors)
+        : base(isSuccess, errors)
+    {
     }
 }

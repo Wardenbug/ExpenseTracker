@@ -30,7 +30,7 @@ internal sealed class RegisterUserCommandHandler(
             $"RegisterUserCommand.ValidationError.{error.ErrorCode}",
                 error.ErrorMessage));
 
-            return Result.Failure(applicationErrors.ToList());
+            return Result.Failure<AccessTokenDto>(applicationErrors.ToList());
         }
 
         var result = await authenticationService.RegisterUserAsync(
