@@ -39,7 +39,7 @@ internal sealed class AuthenticationService(
 
         if (!result.Succeeded)
         {
-            throw new InvalidOperationException("Unable to create the user");
+            throw new ArgumentException("Unable to create the user");
         }
 
         return identityUser.Id;
