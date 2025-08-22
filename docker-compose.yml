@@ -5,6 +5,9 @@ services:
     build:
       context: .
       dockerfile: src/ExpenseTracker.Api/Dockerfile
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://expensetracker.aspire-dashboard:18889
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
 
   expensetracker.database:
     image: postgres:latest
@@ -17,3 +20,10 @@ services:
       - ./.containers/db:/var/lib/postgresql/data
     ports:
       - 5432:5432 
+
+  expensetracker.aspire-dashboard:
+    image: mcr.microsoft.com/dotnet/aspire-dashboard:latest
+    environment:
+      DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS: true
+    ports:
+      - 18888:18888 
