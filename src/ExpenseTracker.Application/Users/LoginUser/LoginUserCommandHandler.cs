@@ -10,6 +10,7 @@ namespace ExpenseTracker.Application.Users.LoginUser;
 internal sealed class LoginUserCommandHandler(
     IJwtService jwtService,
     IAuthenticationService authenticationService,
+    ITokenService tokenService,
     IValidator<LoginUserCommand> validator
     ) : ICommandHandler<LoginUserCommand, Result<AccessTokenDto>>
 {
@@ -38,7 +39,7 @@ internal sealed class LoginUserCommandHandler(
 
         var token = jwtService.CreateToken(new TokenRequest(loginResult.Value!));
 
-        await authenticationService.SaveRefreshTokenAsync(
+        await tokenService.SaveRefreshTokenAsync(
             loginResult.Value!,
             token.RefreshToken,
             cancellationToken);

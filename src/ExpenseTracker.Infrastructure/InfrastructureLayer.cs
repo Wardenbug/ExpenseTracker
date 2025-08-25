@@ -76,7 +76,9 @@ public static class InfrastuctureLayer
         services.AddScoped<IExpenseRepository, ExpenseRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
+        services.AddScoped<ITokenService, TokenService>();
         services.AddTransient<IJwtService, JwtService>();
+
 
         return services;
     }

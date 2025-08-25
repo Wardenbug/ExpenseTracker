@@ -14,9 +14,4 @@ public interface IAuthenticationService
         string userName,
         string password,
         CancellationToken cancellationToken = default);
-
-    Task<Result> SaveRefreshTokenAsync(
-        string userId,
-        string refreshToken,
-        CancellationToken cancellationToken = default);
 }

@@ -1,5 +1,6 @@
 ﻿using ExpenseTracker.Application.Abstractions;
 using ExpenseTracker.Application.Authentication;
+using ExpenseTracker.Application.Tokens.RefreshToken;
 using ExpenseTracker.Application.Users.LoginUser;
 using ExpenseTracker.Application.Users.RegisterUser;
 using ExpenseTracker.Domain.Abstractions;
@@ -12,8 +13,26 @@ public static class AuthenticationEndpoints
     {
         routeBuilder.MapPost("auth/register", Register);
         routeBuilder.MapPost("auth/login", Login);
+        routeBuilder.MapPost("auth/refresh", Refresh);
 
         return routeBuilder;
+    }
+
+    private static async Task<IResult> Refresh(
+        RefreshTokenRequest request,
+        ICommandHandler<RefreshTokenCommand, Result<AccessTokenDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        var command = new RefreshTokenCommand(request.RefreshToken);
+
+        var result = await handler.HandleAsync(command, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return Results.Unauthorized();
+        }
+
+        return Results.Ok(result.Value);
     }
 
     public static async Task<IResult> Register(

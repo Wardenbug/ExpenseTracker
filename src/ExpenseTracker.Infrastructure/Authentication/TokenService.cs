@@ -1,0 +1,87 @@
+﻿using ExpenseTracker.Application.Abstractions;
+using ExpenseTracker.Application.Authentication;
+using ExpenseTracker.Domain.Abstractions;
+using ExpenseTracker.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+
+namespace ExpenseTracker.Infrastructure.Authentication;
+
+internal sealed class TokenService(
+     ApplicationIdentityDbContext identityDbContext,
+     IJwtService jwtService,
+     IOptions<JwtAuthOptions> options) : ITokenService
+{
+    private readonly JwtAuthOptions _jwtAuthOptions = options.Value;
+
+    public async Task<Result<AccessTokenDto>> RefreshTokenAsync(
+        string refreshToken,
+        CancellationToken cancellationToken = default)
+    {
+
+        var token = await identityDbContext.RefreshTokens
+            .Where(token => token.Token == refreshToken)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (token is null)
+        {
+            return Result.Failure<AccessTokenDto>(
+                new ApplicationError("Token.Get", "Token doesn't exist"));
+        }
+
+        if (token.ExpiresAtUtc < DateTime.UtcNow)
+        {
+            return Result.Failure<AccessTokenDto>(
+                   new ApplicationError("Token.Get", "Token doesn't exist"));
+        }
+
+        var accessToken = jwtService.CreateToken(new TokenRequest(token.UserId));
+
+        token.ExpiresAtUtc = DateTime.UtcNow.AddDays(_jwtAuthOptions.RefreshTokenExpirationInDays);
+        token.Token = accessToken.RefreshToken;
+
+        await identityDbContext.SaveChangesAsync(cancellationToken);
+
+        return Result.Ok(accessToken);
+    }
+
+    public Task<Result> RevokeRefreshTokenAsync(
+        string userId,
+        CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<Result> SaveRefreshTokenAsync(
+        string userId,
+        string refreshToken,
+        CancellationToken cancellationToken = default)
+    {
+        var token = await identityDbContext.RefreshTokens
+          .Where(token => token.UserId == userId)
+          .FirstOrDefaultAsync(cancellationToken);
+
+        if(token is null)
+        {
+            var refreshTokenEntity = new RefreshTokenEntity
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                Token = refreshToken,
+                ExpiresAtUtc = DateTime.UtcNow.AddDays(_jwtAuthOptions.RefreshTokenExpirationInDays)
+            };
+
+            identityDbContext.RefreshTokens.Add(refreshTokenEntity);
+        }
+
+        if(token is not null)
+        {
+            token.Token = refreshToken;
+            token.ExpiresAtUtc = DateTime.UtcNow.AddDays(_jwtAuthOptions.RefreshTokenExpirationInDays);
+        }
+       
+        await identityDbContext.SaveChangesAsync(cancellationToken);
+
+        return Result.Ok();
+    }
+}

@@ -9,7 +9,7 @@ namespace ExpenseTracker.Infrastructure.Data;
 public sealed class ApplicationIdentityDbContext(
     DbContextOptions<ApplicationIdentityDbContext> options) : IdentityDbContext(options)
 {
-    public DbSet<RefreshToken> RefreshTokens { get; set; }
+    public DbSet<RefreshTokenEntity> RefreshTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

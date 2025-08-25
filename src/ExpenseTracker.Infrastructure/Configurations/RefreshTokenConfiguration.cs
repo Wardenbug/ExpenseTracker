@@ -4,10 +4,12 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ExpenseTracker.Infrastructure.Configurations;
 
-internal sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
+internal sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshTokenEntity>
 {
-    public void Configure(EntityTypeBuilder<RefreshToken> builder)
+    public void Configure(EntityTypeBuilder<RefreshTokenEntity> builder)
     {
+        builder.ToTable("refresh_tokens");
+
         builder.HasKey(
             token => token.Id);
 

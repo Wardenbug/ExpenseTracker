@@ -2,7 +2,7 @@
 
 namespace ExpenseTracker.Infrastructure.Authentication;
 
-public sealed class RefreshToken
+public sealed class RefreshTokenEntity
 {
     public Guid Id { get; set; }
     public required string UserId { get; set; }
