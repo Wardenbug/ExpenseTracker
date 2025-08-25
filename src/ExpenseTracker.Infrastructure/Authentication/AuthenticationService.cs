@@ -1,14 +1,20 @@
 ﻿using ExpenseTracker.Application.Abstractions;
 using ExpenseTracker.Domain.Abstractions;
 using ExpenseTracker.Domain.Users;
+using ExpenseTracker.Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 
 namespace ExpenseTracker.Infrastructure.Authentication;
 
 internal sealed class AuthenticationService(
-    UserManager<IdentityUser> userManager
+    UserManager<IdentityUser> userManager,
+     ApplicationIdentityDbContext identityDbContext,
+     IOptions<JwtAuthOptions> options
     ) : IAuthenticationService
 {
+    private readonly JwtAuthOptions _jwtAuthOptions = options.Value;
+
     public async Task<Result<string>> LoginUserAsync(
         string userName,
         string password,
@@ -53,5 +59,24 @@ internal sealed class AuthenticationService(
         }
 
         return Result.Ok(identityUser.Id);
+    }
+
+    public async Task<Result> SaveRefreshTokenAsync(
+        string userId,
+        string refreshToken,
+        CancellationToken cancellationToken = default)
+    {
+        var refreshTokenEntity = new RefreshToken
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            Token = refreshToken,
+            ExpiresAtUtc = DateTime.UtcNow.AddDays(_jwtAuthOptions.RefreshTokenExpirationInDays)
+        };
+
+        identityDbContext.RefreshTokens.Add(refreshTokenEntity);
+        await identityDbContext.SaveChangesAsync(cancellationToken);
+
+        return Result.Ok();
     }
 }

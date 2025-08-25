@@ -18,7 +18,7 @@ public static class AuthenticationEndpoints
 
     public static async Task<IResult> Register(
         RegisterUserRequest request,
-        ICommandHandler<RegisterUserCommand, Result<AccessTokenDto>> handler,
+        ICommandHandler<RegisterUserCommand, Result<Guid>> handler,
         CancellationToken cancellationToken)
     {
         var command = new RegisterUserCommand(
@@ -35,7 +35,7 @@ public static class AuthenticationEndpoints
             return Results.ValidationProblem(token.Errors!.ToValidationErrors());
         }
 
-        return TypedResults.Ok(token);
+        return TypedResults.Ok(token.Value);
     }
 
     public static async Task<IResult> Login(

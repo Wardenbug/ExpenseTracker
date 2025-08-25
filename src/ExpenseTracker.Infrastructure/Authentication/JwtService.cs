@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace ExpenseTracker.Infrastructure.Authentication;
@@ -44,6 +45,8 @@ internal sealed class JwtService(IOptions<JwtAuthOptions> jwtOptions) : IJwtServ
 
     private static string GenerateRefreshToken()
     {
-        return string.Empty;
+        byte[] randomBytes = RandomNumberGenerator.GetBytes(32);
+
+        return Convert.ToBase64String(randomBytes);
     }
 }

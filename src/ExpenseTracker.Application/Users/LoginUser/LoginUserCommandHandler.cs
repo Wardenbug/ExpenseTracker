@@ -38,6 +38,11 @@ internal sealed class LoginUserCommandHandler(
 
         var token = jwtService.CreateToken(new TokenRequest(loginResult.Value!));
 
+        await authenticationService.SaveRefreshTokenAsync(
+            loginResult.Value!,
+            token.RefreshToken,
+            cancellationToken);
+
         return Result.Ok(token);
     }
 }
