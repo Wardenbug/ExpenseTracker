@@ -1,5 +1,6 @@
 ﻿using ExpenseTracker.Application.Abstractions;
 using ExpenseTracker.Application.Authentication;
+using ExpenseTracker.Application.Extensions;
 using ExpenseTracker.Domain.Abstractions;
 using ExpenseTracker.Domain.Users;
 using FluentValidation;
@@ -23,14 +24,7 @@ internal sealed class RegisterUserCommandHandler(
 
         if (!validationResult.IsValid)
         {
-            var errors = validationResult.Errors;
-
-            var applicationErrors = errors.Select(error =>
-                new ApplicationError(
-                    error.PropertyName,
-                    error.ErrorMessage));
-
-            return Result.Failure<AccessTokenDto>(applicationErrors.ToList());
+            return Result.Failure<AccessTokenDto>(validationResult.Errors.ToApplicationErrors());
         }
 
         var result = await authenticationService.RegisterUserAsync(
@@ -40,7 +34,12 @@ internal sealed class RegisterUserCommandHandler(
             cancellationToken
             );
 
-        var user = User.Create(command.UserName, command.Email, result);
+        if (result.IsFailure)
+        {
+            return Result.Failure<AccessTokenDto>(result.Errors!);
+        }
+
+        var user = User.Create(command.UserName, command.Email, result.Value!);
 
         userRepository.Add(user);
 

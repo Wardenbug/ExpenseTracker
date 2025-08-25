@@ -1,5 +1,6 @@
 ﻿using ExpenseTracker.Application.Abstractions;
-using ExpenseTracker.Application.Authentication;
+using ExpenseTracker.Domain.Abstractions;
+using ExpenseTracker.Domain.Users;
 using Microsoft.AspNetCore.Identity;
 
 namespace ExpenseTracker.Infrastructure.Authentication;
@@ -8,7 +9,7 @@ internal sealed class AuthenticationService(
     UserManager<IdentityUser> userManager
     ) : IAuthenticationService
 {
-    public async Task<string> LoginUserAsync(
+    public async Task<Result<string>> LoginUserAsync(
         string userName,
         string password,
         CancellationToken cancellationToken = default)
@@ -17,13 +18,20 @@ internal sealed class AuthenticationService(
 
         if (user is null)
         {
-            throw new ArgumentException("User doesn't exists");
+            return Result.Failure<string>(UserErrors.NotFound);
         }
 
-        return user.Id;
+        var isCorrectPassword = await userManager.CheckPasswordAsync(user, password);
+
+        if (!isCorrectPassword)
+        {
+            return Result.Failure<string>(UserErrors.InvalidCredentials);
+        }
+
+        return Result.Ok(user.Id);
     }
 
-    public async Task<string> RegisterUserAsync(
+    public async Task<Result<string>> RegisterUserAsync(
         string email,
         string userName,
         string password,
@@ -39,9 +47,11 @@ internal sealed class AuthenticationService(
 
         if (!result.Succeeded)
         {
-            throw new ArgumentException("Unable to create the user");
+            return Result.Failure<string>(
+                result.Errors.Select(error =>
+                    new ApplicationError(error.Code, error.Description)).ToList());
         }
 
-        return identityUser.Id;
+        return Result.Ok(identityUser.Id);
     }
 }

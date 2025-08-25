@@ -1,24 +1,43 @@
 ﻿using ExpenseTracker.Application.Abstractions;
 using ExpenseTracker.Application.Authentication;
+using ExpenseTracker.Application.Extensions;
+using ExpenseTracker.Domain.Abstractions;
+using FluentValidation;
+using FluentValidation.Results;
 
 namespace ExpenseTracker.Application.Users.LoginUser;
 
 internal sealed class LoginUserCommandHandler(
     IJwtService jwtService,
-    IAuthenticationService authenticationService
-    ) : ICommandHandler<LoginUserCommand, AccessTokenDto>
+    IAuthenticationService authenticationService,
+    IValidator<LoginUserCommand> validator
+    ) : ICommandHandler<LoginUserCommand, Result<AccessTokenDto>>
 {
-    public async Task<AccessTokenDto> HandleAsync(
+    public async Task<Result<AccessTokenDto>> HandleAsync(
         LoginUserCommand command,
         CancellationToken cancellationToken = default)
     {
-        var userId = await authenticationService.LoginUserAsync(
+        ValidationResult validationResult = await validator.ValidateAsync(command, cancellationToken);
+
+        if (!validationResult.IsValid)
+        {
+            return Result.Failure<AccessTokenDto>(validationResult.Errors.ToApplicationErrors());
+        }
+
+        var loginResult = await authenticationService.LoginUserAsync(
             command.UserName,
             command.Password,
             cancellationToken);
 
-        var token = jwtService.CreateToken(new TokenRequest(userId));
 
-        return token;
+        if (loginResult.IsFailure)
+        {
+            return Result.Failure<AccessTokenDto>(
+                new ApplicationError("User.Login", "User doesn't exist"));
+        }
+
+        var token = jwtService.CreateToken(new TokenRequest(loginResult.Value!));
+
+        return Result.Ok(token);
     }
 }

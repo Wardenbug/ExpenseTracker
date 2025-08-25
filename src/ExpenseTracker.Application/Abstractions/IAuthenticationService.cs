@@ -1,16 +1,16 @@
-﻿using ExpenseTracker.Application.Authentication;
+﻿using ExpenseTracker.Domain.Abstractions;
 
 namespace ExpenseTracker.Application.Abstractions;
 
 public interface IAuthenticationService
 {
-    Task<string> RegisterUserAsync(
+    Task<Result<string>> RegisterUserAsync(
         string email,
         string userName,
         string password,
         CancellationToken cancellationToken = default);
 
-    Task<string> LoginUserAsync(
+    Task<Result<string>> LoginUserAsync(
         string userName,
         string password,
         CancellationToken cancellationToken = default);

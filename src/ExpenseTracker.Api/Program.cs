@@ -1,6 +1,6 @@
+using ExpenseTracker.Api.Authentication;
 using ExpenseTracker.Api.Expenses;
 using ExpenseTracker.Api.Middlewares;
-using ExpenseTracker.Api.Users;
 using ExpenseTracker.Application;
 using ExpenseTracker.Infrastructure;
 using ExpenseTracker.Infrastructure.Data;
@@ -58,6 +58,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapExpensesEndpoints();
-app.MapUsersEndpoints();
+app.MapAuthenticationEndpoints();
 
 app.Run();
