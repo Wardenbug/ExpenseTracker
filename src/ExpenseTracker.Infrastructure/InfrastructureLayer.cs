@@ -79,6 +79,8 @@ public static class InfrastuctureLayer
         services.AddScoped<ITokenService, TokenService>();
         services.AddTransient<IJwtService, JwtService>();
 
+        services.AddHttpContextAccessor();
+        services.AddScoped<IUserService, UserService>();
 
         return services;
     }

@@ -1,3 +1,3 @@
 ﻿namespace ExpenseTracker.Api.Authentication;
 
-internal sealed record RevokeTokenRequest(string userId);
+internal sealed record RevokeTokenRequest(string RefreshToken);

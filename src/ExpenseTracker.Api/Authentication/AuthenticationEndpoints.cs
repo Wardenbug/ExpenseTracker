@@ -1,6 +1,7 @@
 ﻿using ExpenseTracker.Application.Abstractions;
 using ExpenseTracker.Application.Authentication;
 using ExpenseTracker.Application.Tokens.RefreshToken;
+using ExpenseTracker.Application.Tokens.RevokeToken;
 using ExpenseTracker.Application.Users.LoginUser;
 using ExpenseTracker.Application.Users.RegisterUser;
 using ExpenseTracker.Domain.Abstractions;
@@ -13,9 +14,31 @@ public static class AuthenticationEndpoints
     {
         routeBuilder.MapPost("auth/register", Register);
         routeBuilder.MapPost("auth/login", Login);
+        routeBuilder.MapPost("auth/logout", Revoke)
+            .RequireAuthorization();
         routeBuilder.MapPost("auth/refresh", Refresh);
 
         return routeBuilder;
+    }
+
+    private static async Task<IResult> Revoke(
+        RevokeTokenRequest request,
+        ICommandHandler<RevokeTokenCommand, Result> handler,
+        CancellationToken cancellationToken)
+    {
+        var command = new RevokeTokenCommand(request.RefreshToken);
+
+        var result = await handler.HandleAsync(command, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return Results.Problem(
+                 title: "Token revocation failed",
+                 detail: result.Error?.Message ?? "Unknown error",
+                 statusCode: StatusCodes.Status400BadRequest);
+        }
+
+        return Results.Ok();
     }
 
     private static async Task<IResult> Refresh(

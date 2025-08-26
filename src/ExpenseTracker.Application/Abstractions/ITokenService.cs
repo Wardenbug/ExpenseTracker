@@ -12,6 +12,7 @@ public interface ITokenService
 
     Task<Result> RevokeRefreshTokenAsync(
        string userId,
+       string refreshToken,
        CancellationToken cancellationToken = default);
 
     Task<Result<AccessTokenDto>> RefreshTokenAsync(

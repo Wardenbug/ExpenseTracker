@@ -1,9 +1,7 @@
 ﻿using ExpenseTracker.Application.Abstractions;
 using ExpenseTracker.Domain.Abstractions;
 using ExpenseTracker.Domain.Users;
-using ExpenseTracker.Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
 
 namespace ExpenseTracker.Infrastructure.Authentication;
 
