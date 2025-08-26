@@ -24,7 +24,7 @@ internal sealed class JwtService(IOptions<JwtAuthOptions> jwtOptions) : IJwtServ
 
         List<Claim> claims =
             [
-                new Claim(JwtRegisteredClaimNames.Sub, tokenRequest.UserId),
+                new Claim(JwtRegisteredClaimNames.Sub, tokenRequest.UserId.ToString()),
             ];
 
         var tokenDescriptor = new SecurityTokenDescriptor

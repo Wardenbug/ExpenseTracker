@@ -1,19 +1,29 @@
 ﻿using ExpenseTracker.Application.Abstractions;
+using ExpenseTracker.Application.Authentication;
+using ExpenseTracker.Application.Extensions;
 using ExpenseTracker.Domain.Abstractions;
 using ExpenseTracker.Domain.Expenses;
+using FluentValidation;
 
 namespace ExpenseTracker.Application.Expenses.CreateExpense;
 
 public sealed class CreateExpenseCommandHandler(
         IUnitOfWork unitOfWork,
-        IExpenseRepository expenseRepository
-    ) : ICommandHandler<CreateExpenseCommand, Expense>
+        IExpenseRepository expenseRepository,
+        IUserService userService,
+        IValidator<CreateExpenseCommand> validator
+    ) : ICommandHandler<CreateExpenseCommand, Result<ExpenseResponse>>
 {
-    public async Task<Expense> HandleAsync(
+    public async Task<Result<ExpenseResponse>> HandleAsync(
         CreateExpenseCommand command,
         CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(command);
+        var validationResult = await validator.ValidateAsync(command, cancellationToken);
+
+        if (!validationResult.IsValid)
+        {
+            return Result.Failure<ExpenseResponse>(validationResult.Errors.ToApplicationErrors());
+        }
 
         var category = command.CategoryType switch
         {
@@ -27,7 +37,7 @@ public sealed class CreateExpenseCommandHandler(
         };
 
         var expense = Expense.Create(
-            command.UserId,
+            userService.UserId,
             command.Name,
             category,
             command.Amount,
@@ -37,6 +47,7 @@ public sealed class CreateExpenseCommandHandler(
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return expense;
+        return Result.Ok(
+            new ExpenseResponse(expense.Id, expense.Name, expense.Amount, category));
     }
 }

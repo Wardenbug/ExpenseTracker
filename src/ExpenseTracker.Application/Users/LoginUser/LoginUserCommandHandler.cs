@@ -2,6 +2,7 @@
 using ExpenseTracker.Application.Authentication;
 using ExpenseTracker.Application.Extensions;
 using ExpenseTracker.Domain.Abstractions;
+using ExpenseTracker.Domain.Users;
 using FluentValidation;
 using FluentValidation.Results;
 
@@ -10,6 +11,7 @@ namespace ExpenseTracker.Application.Users.LoginUser;
 internal sealed class LoginUserCommandHandler(
     IJwtService jwtService,
     IAuthenticationService authenticationService,
+    IUserRepository userRepository,
     ITokenService tokenService,
     IValidator<LoginUserCommand> validator
     ) : ICommandHandler<LoginUserCommand, Result<AccessTokenDto>>
@@ -37,7 +39,15 @@ internal sealed class LoginUserCommandHandler(
                 new ApplicationError("User.Login", "User doesn't exist"));
         }
 
-        var token = jwtService.CreateToken(new TokenRequest(loginResult.Value!));
+        var user = await userRepository.FindByIdentityIdAsync(loginResult.Value!, cancellationToken);
+
+        if (user is null)
+        {
+            return Result.Failure<AccessTokenDto>(
+           new ApplicationError("User.Login", "User doesn't exist"));
+        }
+
+        var token = jwtService.CreateToken(new TokenRequest(user.Id));
 
         await tokenService.SaveRefreshTokenAsync(
             loginResult.Value!,

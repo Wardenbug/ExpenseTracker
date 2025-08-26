@@ -1,6 +1,7 @@
 ﻿using ExpenseTracker.Application.Abstractions;
 using ExpenseTracker.Application.Authentication;
 using ExpenseTracker.Domain.Abstractions;
+using ExpenseTracker.Domain.Users;
 using ExpenseTracker.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -10,6 +11,7 @@ namespace ExpenseTracker.Infrastructure.Authentication;
 internal sealed class TokenService(
      ApplicationIdentityDbContext identityDbContext,
      IJwtService jwtService,
+     IUserRepository userRepository,
      IOptions<JwtAuthOptions> options) : ITokenService
 {
     private readonly JwtAuthOptions _jwtAuthOptions = options.Value;
@@ -35,7 +37,14 @@ internal sealed class TokenService(
                    new ApplicationError("Token.Get", "Token doesn't exist"));
         }
 
-        var accessToken = jwtService.CreateToken(new TokenRequest(token.UserId));
+        var user = await userRepository.FindByIdentityIdAsync(token.UserId, cancellationToken);
+
+        if(user is null)
+        {
+            return Result.Failure<AccessTokenDto>(
+                  new ApplicationError("Token.Get", "Token doesn't exist"));
+        }
+        var accessToken = jwtService.CreateToken(new TokenRequest(user.Id));
 
         token.ExpiresAtUtc = DateTime.UtcNow.AddDays(_jwtAuthOptions.RefreshTokenExpirationInDays);
         token.Token = accessToken.RefreshToken;

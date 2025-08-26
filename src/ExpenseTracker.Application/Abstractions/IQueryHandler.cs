@@ -1,7 +1,7 @@
 ﻿namespace ExpenseTracker.Application.Abstractions;
 
-public interface IQueryHandler<in TCommand, TResponce> where TCommand : ICommand
+public interface IQueryHandler<in TQuery, TResponce> where TQuery : IQuery
 {
-    Task<TResponce> HandleAsync(TCommand command, CancellationToken cancellationToken = default);
+    Task<TResponce> HandleAsync(TQuery command, CancellationToken cancellationToken = default);
 }
 

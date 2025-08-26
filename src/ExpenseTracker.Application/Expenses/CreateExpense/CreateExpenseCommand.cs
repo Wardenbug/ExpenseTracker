@@ -3,7 +3,6 @@ using ExpenseTracker.Domain.Expenses;
 namespace ExpenseTracker.Application.Expenses.CreateExpense;
 
 public record CreateExpenseCommand(
-    Guid UserId,
     string Name,
     CategoryType CategoryType,
     decimal Amount) : ICommand;

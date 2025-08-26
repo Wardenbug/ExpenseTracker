@@ -1,5 +1,7 @@
 ﻿using ExpenseTracker.Application.Abstractions;
+using ExpenseTracker.Application.Expenses;
 using ExpenseTracker.Application.Expenses.CreateExpense;
+using ExpenseTracker.Domain.Abstractions;
 using ExpenseTracker.Domain.Expenses;
 
 namespace ExpenseTracker.Api.Expenses;
@@ -8,9 +10,13 @@ public static class ExpensesEndpoints
 {
     public static IEndpointRouteBuilder MapExpensesEndpoints(this IEndpointRouteBuilder builder)
     {
-        builder.MapPost("expenses", CreateExpensesAsync);
-        builder.MapGet("expenses", GetExpenses);
-        builder.MapGet("expenses/{id}", GetExpenseById);
+        var group = builder.MapGroup("expenses")
+                      .RequireAuthorization();
+
+        group.MapPost("", CreateExpensesAsync);
+        group.MapGet("", GetExpenses);
+        group.MapGet("{id}", GetExpenseById)
+            .WithName("GetExpenseById");
 
         return builder;
     }
@@ -27,17 +33,21 @@ public static class ExpensesEndpoints
 
     public static async Task<IResult> CreateExpensesAsync(
         CreateExpenseRequest request,
-        ICommandHandler<CreateExpenseCommand, Expense> handler,
+        ICommandHandler<CreateExpenseCommand, Result<ExpenseResponse>> handler,
         CancellationToken cancellationToken)
     {
         var command = new CreateExpenseCommand(
-            request.UserId,
             request.Name,
             request.CategoryType,
             request.Amount);
 
-        var expense = await handler.HandleAsync(command, cancellationToken);
+        var result = await handler.HandleAsync(command, cancellationToken);
 
-        return Results.Ok(expense);
+        if (result.IsFailure)
+        {
+            return Results.ValidationProblem(result.Errors!.ToValidationErrors());
+        }
+
+        return Results.CreatedAtRoute("GetExpenseById", new { id = result.Value!.Id }, result.Value);
     }
 }
