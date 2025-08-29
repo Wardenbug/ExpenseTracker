@@ -13,6 +13,11 @@ internal sealed class ExpenseRepository(
         await applicationDbContext.AddAsync(expense, cancellationToken);
     }
 
+    public void Delete(Expense expense)
+    {
+        applicationDbContext.Remove(expense);
+    }
+
     public async Task<Expense?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var expense = await applicationDbContext.Set<Expense>()

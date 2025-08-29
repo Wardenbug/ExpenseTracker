@@ -1,6 +1,7 @@
 ﻿using ExpenseTracker.Application.Abstractions;
 using ExpenseTracker.Application.Expenses;
 using ExpenseTracker.Application.Expenses.CreateExpense;
+using ExpenseTracker.Application.Expenses.DeleteExpense;
 using ExpenseTracker.Application.Expenses.GetExpense;
 using ExpenseTracker.Domain.Abstractions;
 
@@ -14,11 +15,33 @@ public static class ExpensesEndpoints
                       .RequireAuthorization();
 
         group.MapPost("", CreateExpensesAsync);
+        group.MapDelete("{id:guid}", DeleteExpenseById);
         group.MapGet("", GetExpenses);
-        group.MapGet("{id}", GetExpenseById)
+        group.MapGet("{id:guid}", GetExpenseById)
             .WithName("GetExpenseById");
 
         return builder;
+    }
+
+    private static async Task<IResult> DeleteExpenseById(
+        Guid id,
+        ICommandHandler<DeleteExpenseCommand, Result> handler,
+        CancellationToken cancellationToken)
+    {
+        var command = new DeleteExpenseCommand(id);
+
+        var result = await handler.HandleAsync(command, cancellationToken);
+
+        if (result.IsFailure)
+        {
+
+            return Results.Problem(
+                  title: "Expense doesn't exist",
+                  detail: result.Error?.Message ?? "Unknown error",
+                  statusCode: StatusCodes.Status404NotFound);
+        }
+
+        return Results.NoContent();
     }
 
     private static async Task<IResult> GetExpenseById(

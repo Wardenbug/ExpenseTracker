@@ -9,4 +9,9 @@
     <ProjectReference Include="..\ExpenseTracker.Domain\ExpenseTracker.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Expenses\GetExpenses\" />
+    <Folder Include="Expenses\UpdateExpense\" />
+  </ItemGroup>
+
 </Project>
