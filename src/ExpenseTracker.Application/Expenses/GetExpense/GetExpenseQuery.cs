@@ -2,4 +2,4 @@
 
 namespace ExpenseTracker.Application.Expenses.GetExpense;
 
-public sealed record GetExpenseQuery(string ExpenseId) : IQuery;
+public sealed record GetExpenseQuery(Guid ExpenseId) : IQuery;

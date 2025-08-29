@@ -1,8 +1,8 @@
 ﻿using ExpenseTracker.Application.Abstractions;
 using ExpenseTracker.Application.Expenses;
 using ExpenseTracker.Application.Expenses.CreateExpense;
+using ExpenseTracker.Application.Expenses.GetExpense;
 using ExpenseTracker.Domain.Abstractions;
-using ExpenseTracker.Domain.Expenses;
 
 namespace ExpenseTracker.Api.Expenses;
 
@@ -21,9 +21,24 @@ public static class ExpensesEndpoints
         return builder;
     }
 
-    private static Task GetExpenseById(HttpContext context)
+    private static async Task<IResult> GetExpenseById(
+        Guid id,
+        IQueryHandler<GetExpenseQuery, Result<ExpenseResponse>> queryHandler,
+        CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var query = new GetExpenseQuery(id);
+
+        var result = await queryHandler.HandleAsync(query, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return Results.Problem(
+                  title: "Expense doesn't exist",
+                  detail: result.Error?.Message ?? "Unknown error",
+                  statusCode: StatusCodes.Status404NotFound);
+        }
+
+        return Results.Ok(result.Value);
     }
 
     private static Task GetExpenses(HttpContext context)
