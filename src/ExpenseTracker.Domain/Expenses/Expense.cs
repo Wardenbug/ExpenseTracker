@@ -45,4 +45,13 @@ public sealed class Expense : Entity
             amount,
             createdOnUtc);
     }
+
+    public void Update(string name, Category category, decimal amount)
+    {
+        Name = name;
+        Category = category;
+        Amount = amount;
+
+        UpdatedOnUtc = DateTime.UtcNow;
+    }
 }

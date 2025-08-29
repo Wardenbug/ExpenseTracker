@@ -3,6 +3,7 @@ using ExpenseTracker.Application.Expenses;
 using ExpenseTracker.Application.Expenses.CreateExpense;
 using ExpenseTracker.Application.Expenses.DeleteExpense;
 using ExpenseTracker.Application.Expenses.GetExpense;
+using ExpenseTracker.Application.Expenses.UpdateExpense;
 using ExpenseTracker.Domain.Abstractions;
 
 namespace ExpenseTracker.Api.Expenses;
@@ -16,11 +17,42 @@ public static class ExpensesEndpoints
 
         group.MapPost("", CreateExpensesAsync);
         group.MapDelete("{id:guid}", DeleteExpenseById);
+        group.MapPut("{id:guid}", UpdateExpenseById);
         group.MapGet("", GetExpenses);
         group.MapGet("{id:guid}", GetExpenseById)
             .WithName("GetExpenseById");
 
         return builder;
+    }
+
+    private static async Task<IResult> UpdateExpenseById(
+        Guid id,
+        UpdateExpenseRequest request,
+        ICommandHandler<UpdateExpenseCommand, Result<ExpenseResponse>> handler,
+        CancellationToken cancellationToken)
+    {
+        var command = new UpdateExpenseCommand(
+            id,
+            request.Name,
+            request.CategoryType,
+            request.Amount);
+
+        var result = await handler.HandleAsync(command, cancellationToken);
+
+        if (result.IsFailure && result.Errors?.Count > 0)
+        {
+            return Results.ValidationProblem(result.Errors!.ToValidationErrors());
+        }
+
+        if (result.IsFailure && result.Error is not null)
+        {
+            return Results.Problem(
+                title: "Expense doesn't exist",
+                detail: result.Error?.Message ?? "Unknown error",
+                statusCode: StatusCodes.Status404NotFound);
+        }
+
+        return Results.Ok(result.Value);
     }
 
     private static async Task<IResult> DeleteExpenseById(
