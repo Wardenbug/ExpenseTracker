@@ -3,8 +3,10 @@ using ExpenseTracker.Application.Expenses;
 using ExpenseTracker.Application.Expenses.CreateExpense;
 using ExpenseTracker.Application.Expenses.DeleteExpense;
 using ExpenseTracker.Application.Expenses.GetExpense;
+using ExpenseTracker.Application.Expenses.GetExpenses;
 using ExpenseTracker.Application.Expenses.UpdateExpense;
 using ExpenseTracker.Domain.Abstractions;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ExpenseTracker.Api.Expenses;
 
@@ -96,9 +98,16 @@ public static class ExpensesEndpoints
         return Results.Ok(result.Value);
     }
 
-    private static Task GetExpenses(HttpContext context)
+    private static async Task<IResult> GetExpenses(
+        [AsParameters] GetExpensesParameters parameters,
+        IQueryHandler<GetExpensesQuery, Result<PaginationResult<ExpenseResponse>>> handler,
+        CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var query = new GetExpensesQuery(parameters.Page, parameters.PageSize);
+
+        var result = await handler.HandleAsync(query, cancellationToken);
+
+        return Results.Ok(result.Value);
     }
 
     public static async Task<IResult> CreateExpensesAsync(
