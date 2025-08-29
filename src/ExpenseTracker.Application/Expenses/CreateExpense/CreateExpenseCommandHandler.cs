@@ -25,16 +25,7 @@ public sealed class CreateExpenseCommandHandler(
             return Result.Failure<ExpenseResponse>(validationResult.Errors.ToApplicationErrors());
         }
 
-        var category = command.CategoryType switch
-        {
-            CategoryType.Groceries => Category.Groceries,
-            CategoryType.Leisure => Category.Leisure,
-            CategoryType.Electronics => Category.Electronics,
-            CategoryType.Utilities => Category.Utilities,
-            CategoryType.Clothing => Category.Clothing,
-            CategoryType.Health => Category.Health,
-            _ => Category.Others
-        };
+        var category = command.CategoryType.ToCategory();
 
         var expense = Expense.Create(
             userService.UserId,

@@ -40,16 +40,7 @@ internal sealed class UpdateExpenseCommandHandler(
                new ApplicationError("Expense.Update", "Expense doesn't exist"));
         }
 
-        var category = command.CategoryType switch
-        {
-            CategoryType.Groceries => Category.Groceries,
-            CategoryType.Leisure => Category.Leisure,
-            CategoryType.Electronics => Category.Electronics,
-            CategoryType.Utilities => Category.Utilities,
-            CategoryType.Clothing => Category.Clothing,
-            CategoryType.Health => Category.Health,
-            _ => Category.Others
-        };
+        var category = command.CategoryType.ToCategory();
 
         expense.Update(
             command.Name,
